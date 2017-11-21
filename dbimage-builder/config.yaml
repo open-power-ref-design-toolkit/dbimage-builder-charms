@@ -1,0 +1,13 @@
+options:
+  trove_net:
+    default: "trove_net"
+    type: string
+    description: "OpenStack trove tenant network"
+  external_net:
+    default: "external_net"
+    type: string
+    description: "OpenStack external network"
+  vm_image:
+    default: "xenial-1604"
+    type: string
+    description: "OpenStack ubuntu image name for VM"

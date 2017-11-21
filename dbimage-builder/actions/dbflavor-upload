@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -x
+
+db=$(action-get db)
+
+params=""
+
+if [ -n "$db" ]; then
+  params+=" -d $db"
+fi
+
+cd /root/os-services/osa/dbaas/dbimage-builder
+action-set message=$(./scripts/dbflavor-upload.sh $params)

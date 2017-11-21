@@ -1,0 +1,55 @@
+dbflavor-change:
+  description: Display flavor details for a given database
+  params:
+    db:
+      type: string
+      description: The type of database to create
+    vcpus:
+      type: integer
+      description: Number of virtual CPUs
+    flavor:
+      type: string
+      description: Flavor name to change. i.e. small medium large.
+    mem:
+      type: integer
+      description: Memory in megabytes.
+    vdisk:
+      type: string
+      description: Disk space in gigabytes.
+  required: [db]
+dbflavor-show:
+  description: Display flavor details for a given database
+  params:
+    db:
+      type: string
+      description: The type of database to create
+    predefined:
+      type: boolean
+      description: Show only predefined flavors.
+  required: [db]
+dbflavor-upload:
+  description: Display flavor details for a given database
+  params:
+    db:
+      type: string
+      description: The type of database to create
+  required: [db]
+dbimage-make:
+  description: Create a database images.
+  params:
+    db:
+      type: string
+      description: The type of database to create
+    version:
+      type: number
+      description: The version of the choosen database.
+    keyname:
+      type: string
+      description: Identifies a Nova ssh key pair.  If specified, the public key is placed in the image
+    e:
+      type: boolean
+      decription: Enterprise provided database if supported
+    c:
+      type: boolean
+      description: Community provided database if supported
+  required: [db]

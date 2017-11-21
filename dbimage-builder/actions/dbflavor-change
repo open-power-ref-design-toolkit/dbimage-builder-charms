@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -x
+
+db=$(action-get db)
+vcpus=$(action-get vcpus)
+flavor=$(action-get flavor)
+mem=$(action-get mem)
+vdisk=$(action-get vdisk)
+
+params=""
+
+if [ -n "$db" ]; then
+  params+=" -d $db"
+fi
+if [ -n "$flavor" ]; then
+  params+=" -f $flavor"
+fi
+if [ -n "$vcpus" ]; then
+  params+=" -c $vcpus"
+fi
+if [ -n "$mem" ]; then
+  params+=" -m $mem"
+fi
+if [ -n "$vdisk" ]; then
+  params+=" -r $vdisk"
+fi
+
+cd /root/os-services/osa/dbaas/dbimage-builder
+action-set message=$(./scripts/dbflavor-change.sh  $params)

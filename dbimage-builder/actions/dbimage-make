@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -x
+
+db=$(action-get db)
+version=$(action-get version)
+keyname=$(action-get keyname)
+e=$(action-get e)
+c=$(action-get c)
+
+. /var/lib/juju/agents/unit-dbimage-builder-*/charm/dibcharmrc
+
+params=""
+
+if [ -n "$db" ]; then
+  params+=" -d $db"
+fi
+if [ -n "$version" ]; then
+  params+=" -v $version"
+fi
+if [ "$e" == "True" ] && [ "$c" == "True" ]; then
+	action-set outcome="The edition can either be community or enterprise."
+fi
+if [ "$e" == "True" ]; then
+  params+=" -e"
+fi
+if [ "$c" == "True" ]; then
+  params+=" -c"
+fi
+if [ -n "$keyname" ]; then
+  params+=" -k $keyname"
+fi
+
+status-set active "Started dbimage-make"
+cd /root/os-services/osa/dbaas/dbimage-builder
+(./scripts/dbimage-make.sh  -i $dib_vm_ip $params)|\
+while read line
+do
+  if [[ -n $(echo $line | grep "TASK") ]]; then
+    status-set active "$(echo $line | grep "TASK" | cut -d'*' -f1)"
+  elif [[ -n $(echo $line | grep "Error") ]]; then
+	action-set outcome="$(echo $line | grep "Error")"
+  fi
+done
+
+status-set active ""

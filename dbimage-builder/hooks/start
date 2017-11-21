@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -x
+
+. /home/ubuntu/openrc
+. dibcharmrc
+
+#check if public key exists
+openstack keypair show $dib_key
+
+RC=$?
+
+if [ $RC -ne 0 ]; then
+    openstack keypair create --public-key ~/.ssh/dib_rsa.pub $dib_key
+fi
+
+#check if VM exists
+openstack server show $vm_server
+
+RC=$?
+
+if [ $RC -ne 0 ]; then
+    ./hooks/createvm
+fi

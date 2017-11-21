@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -x
+
+. /home/ubuntu/openrc
+. dibcharmrc
+
+#delete vm
+openstack server delete $vm_server
+openstack keypair delete $dib_key
+
+status-set maintenance "Stopped for maintenance"

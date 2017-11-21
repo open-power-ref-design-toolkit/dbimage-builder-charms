@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -x
+
+. /home/ubuntu/openrc
+. dibcharmrc
+
+trove_net=$(config-get trove_net)
+ext_net=$(config-get external_net)
+vm_image=$(config-get vm_image)
+
+dibvm_net=$(openstack server show $vm_server -f value -c addresses)
+dib_vm_image=$(openstack server show $vm_server -f value -c image | cut -d' ' -f1)
+
+if [[ "$dibvm_net" != *"$trove_net"*  || "$dibvm_net" != *"$ext_net"* || "$dib_vm_image" != "$vm_image" ]]
+then
+    openstack server delete $vm_server
+    sleep 10
+    ./hooks/createvm
+fi

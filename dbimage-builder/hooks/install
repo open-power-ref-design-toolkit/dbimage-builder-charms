@@ -1,0 +1,38 @@
+#!/bin/bash
+
+sudo apt install -y ansible git python-openstackclient
+sudo rm -rf /root/os-services/
+sudo git clone https://github.com/open-power-ref-design-toolkit/os-services /root/os-services
+if [[ ! -f /root/.ssh/dib_rsa ]]; then
+    sudo ssh-keygen -t rsa -N '' -f /root/.ssh/dib_rsa
+fi
+sudo mv /root/os-services/osa/dbaas/dbimage-builder/scripts/dbimagerc /root/os-services/osa/dbaas/dbimage-builder/scripts/dbimagerc.example
+ 
+echo "DBIMAGE_DIB_PRIVATE_SSH_KEY=/root/.ssh/dib_rsa" > /root/os-services/osa/dbaas/dbimage-builder/scripts/dbimagerc
+ 
+dib_id=$(date +%s)
+dib_key=dib_key$dib_id
+cat <<EOF > dibcharmrc
+    export vm_server=dib_vm$dib_id
+	export dib_key=$dib_key
+EOF
+
+. /home/ubuntu/openrc
+
+#check if flavor has been created
+openstack flavor show dib_vm
+
+RC=$?
+
+if [ $RC -ne 0 ]; then
+    openstack flavor create --ram 12228 --disk 100 --vcpus 4 dib_vm
+fi
+
+#check if public key exists
+openstack keypair show $dib_key
+
+RC=$?
+
+if [ $RC -ne 0 ]; then
+    openstack keypair create --public-key /root/.ssh/dib_rsa.pub $dib_key
+fi

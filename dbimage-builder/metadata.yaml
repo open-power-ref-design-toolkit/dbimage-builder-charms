@@ -1,0 +1,19 @@
+name: dbimage-builder
+summary: juju charm for building trove images
+maintainer: Eric M. Trevino <emtrevin@us.ibm.com>
+description: |
+  The dbimage-builder charm is used to create trove datastore
+  images. 
+tags:
+  - trove
+subordinate: true
+provides:
+  dib-deployer:
+    interface: ansible 
+requires:
+  general-info:
+    interface: juju-info
+    scope: container
+extra-bindings:
+  public: !!null ""
+  internal: !!null ""

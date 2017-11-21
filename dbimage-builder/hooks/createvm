@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -x
+
+. /home/ubuntu/openrc
+. dibcharmrc
+
+#Create VM and wait for IP
+trove_net=$(config-get trove_net)
+ext_net=$(config-get external_net)
+vm_image=$(config-get vm_image)
+
+create_out=$(openstack server create --flavor dib_vm --image $vm_image --nic net-id=$trove_net --nic net-id=$ext_net --key-name $dib_key $vm_server 2>&1)
+RC=$?
+
+if [ $RC -eq 0 ]; then
+    RETRIES=0
+    while [ -z $dib_vm_ip ] && [ $RETRIES -lt 5 ]; do
+        sleep 15
+        dib_vm_ip=$(openstack server show $vm_server -c addresses -f value | awk -v net="$trove_net=" 'BEGIN { FS=net } ; { split($NF,a," |;",s); print a[1]}')
+        let RETRIES+=1
+    done
+    if [ -z $dib_vm_ip ]; then
+        status-set blocked "Failed to create vm. Please update configuration."
+    else
+cat <<EOF > dibcharmrc
+export vm_server=$vm_server
+export dib_key=$dib_key
+export dib_vm_ip=$dib_vm_ip
+EOF
+        status-set active "Unit is ready"
+    fi
+else
+    status-set blocked "$create_out. Please update the configuration with the correct values."
+fi
